@@ -1,1 +1,8 @@
-server/gpt_venv
+.venv
+
+my_notes.txt
+
+frontend/node_modules
+frontend/package-lock.json
+
+server/__pycache__

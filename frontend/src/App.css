@@ -1,0 +1,56 @@
+.App {
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+form {
+  margin: var(--padding-large) 0;
+}
+
+input {
+  padding: 10px;
+  font-size: 16px;
+  width: 500px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin-left: 10px;
+  border-radius: var(--padding-large);
+  border: unset;
+}
+
+.selected {
+  background-color: var(--search-type-color);
+}
+
+.results {
+  text-align: left;
+  margin: 20px;
+}
+
+
+.questions {
+  padding: var(--padding-large);
+  display: flex;
+  justify-content: center;
+  padding-left: 0;
+  flex-wrap: wrap;
+  gap: var(--padding-medium);
+}
+
+.questions>button {
+  background-color: var(--question-color);
+  color: white;
+  cursor: pointer;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: var(--search-type-color);
+  color: black;
+}

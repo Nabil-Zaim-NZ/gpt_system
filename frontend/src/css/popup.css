@@ -1,0 +1,10 @@
+.popup {
+    background-color: #ffa17a;
+    width: max-content;
+    padding: 20px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 20px;
+    text-align: center;
+}

@@ -1,0 +1,27 @@
+.document-card {
+    border: 2px solid;
+    border-radius: 20px;
+    padding: 20px;
+    width: 400px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.paragraph {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 150px;
+}
+
+.documents {
+    display: flex;
+    margin-top: 30px;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+img {
+    aspect-ratio: 16/9;
+}

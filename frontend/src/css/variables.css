@@ -1,0 +1,9 @@
+/* variables.css */
+:root {
+    --question-color: #1b9f8f;
+    --search-type-color: #ffa17a;
+    --pop-up-color: #ffa17a;
+    --border-radius-standard: 1rem;
+    --padding-medium: 1rem;
+    --padding-large: 1.5rem;
+}
