@@ -1,9 +1,16 @@
 import pandas as pd
-from datasets import load_dataset
 from elasticsearch import Elasticsearch
 from flask import jsonify
 from sentence_transformers import SentenceTransformer
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 import os
+
+
+nltk.download("stopwords")
+nltk.download("punkt")
+stop_words = set(stopwords.words("english"))
 
 ES_INDEX = os.getenv("ES_INDEX")
 ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL")
@@ -15,16 +22,23 @@ es = Elasticsearch(ELASTICSEARCH_URL)
 es.info()
 
 
+def remove_stop_words(text):
+    text = str(text).lower()
+    word_tokens = word_tokenize(text)
+    filtered_text = [word for word in word_tokens if word.lower() not in stop_words]
+    return " ".join(filtered_text)
+
+
 def load_and_index_dataset():
-    df = load_dataset("RealTimeData/bbc_news_alltime", "2024-04")["train"]
-    df = pd.DataFrame(df).head(15)
+    df = pd.read_csv("data.csv").head(25)
     operations = [
         {"index": {"_index": ES_INDEX}}
         | {
             **row,
+            "cleaned_paragraph": remove_stop_words(paragraph),
             "paragraph": paragraph,
             "embedding": model.encode(
-                (row["title"] + " ") * 20 + (row["description"] + " ") * 5 + paragraph,
+                remove_stop_words(row["title"] * 2 + row["description"] + paragraph),
                 convert_to_tensor=True,
             ).tolist(),
         }
@@ -40,7 +54,7 @@ def search(request):
     if not query:
         return jsonify({"error": "Query not provided"}), 400
 
-    query_embedding = model.encode(query, convert_to_tensor=True)
+    query_embedding = model.encode(remove_stop_words(query), convert_to_tensor=True)
 
     similarity_response = es.search(
         index=ES_INDEX,
@@ -62,8 +76,8 @@ def search(request):
         body={
             "query": {
                 "multi_match": {
-                    "query": query,
-                    "fields": ["title^20", "description^1", "paragraph^1"],
+                    "query": remove_stop_words(query),
+                    "fields": ["title^2", "description^1", "paragraph^1"],
                 }
             }
         },
@@ -80,7 +94,7 @@ def search(request):
     max_score = keyword_response["hits"]["max_score"]
     keyword_results = filter_results(
         [
-            create_result_dict(hit, "Keyword", hit["_score"])
+            create_result_dict(hit, "Keyword", hit["_score"] / max_score)
             for hit in keyword_response["hits"]["hits"]
             if hit["_score"] / max_score > THRESHOLD_DOCUMENT
         ]
@@ -131,6 +145,7 @@ def get_example_questions():
 
 
 def reindex_documents():
+    print("Start reindexing...")
     es.indices.delete(index=ES_INDEX, ignore_unavailable=True)
     es.indices.create(index=ES_INDEX)
     load_and_index_dataset()

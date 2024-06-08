@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  elasticsearch:
+    image: mini/elasticsearch
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+    ports:
+        - "9200:9200"
+
+  flask-app:
+    build: ./server
+    container_name: flask-app
+    environment:
+      - FLASK_ENV=development
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    ports:
+      - "5000:5000"
+
+    depends_on:
+      - elasticsearch
+
+  react-app:
+    build: ./frontend
+    container_name: react-app
+    ports:
+      - "3000:3000"
